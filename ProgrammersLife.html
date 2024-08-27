@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        .needs{
+            width: 30px;
+            height: 30px;
+        }
+
+        .student {
+            width: 300px;
+            height: 200px;
+        }
+
+        .items {
+            width: 50px;
+            height: 40px;
+        }
+    </style>
+
+    <div id="app">
+
+    </div>
+
+    <script>
+        // model
+        let maxValue = 100;
+        // needs
+        let hunger = maxValue;
+        let thirst = maxValue;
+        let relief = maxValue;
+
+        let alive = true;
+        let student = "itstudent.png"
+
+        // view
+        let appObject = document.getElementById('app');
+
+        updateApp();
+        function showView() {
+            if (!alive)
+                student = "itstudentL.png"
+            appObject.innerHTML = /*HTML*/ `
+            
+            <img src="./images/vann.png" id="water" class="items">
+            <img src="./images/mat.png" id="food" onmousedown="eatFood()">
+            <img src="./images/pause.png" id="pause">
+            <img class="student" src="./images/${student}">
+            
+            Hunger:<div id="hungerBar" class="needs"></div>
+            Thirst:<div id="waterBar" class="needs"></div>
+            Stress:<div id="reliefBar" class="needs"></div>
+            `;
+
+            updateBar(hunger);
+        }
+
+        function updateBar(currentValue) {
+            const bar = document.getElementById('hungerBar');
+            const percentage = currentValue / 100;
+
+            if (currentValue > 0) {
+                bar.style.width = (percentage * 300) + "px";
+                if (percentage > 0.66) {
+                    bar.style.backgroundColor = "green";
+                } else if (percentage > 0.33) {
+                    bar.style.backgroundColor = "yellow";
+                } else {
+                    bar.style.backgroundColor = "red";
+                }
+            }
+        }
+
+        // controller
+
+        // main loop
+        setInterval(updateApp, 16);
+        function updateApp() {
+            showView();
+            decrementNeeds();
+        }
+
+        // onclick functions
+        function eatFood() {
+            hunger += 10;
+        }
+
+        function drinkWater() {
+            thirst += 15;
+        }
+
+        function meditate() {
+            relief += 4;
+        }
+
+        // Justerer ned behov-barene
+        function decrementNeeds() {
+            hunger -= 0.1;
+            thirst -= 0.1;
+            if (hunger <= 0)
+                alive = false;
+        }
+
+        // Sjekk om karakt
+
+        /*if (currentValue1 === 0 && currentValue2 === 0 && currentValue3 === 0) {
+                clearInterval(intervalId);
+            }*/
+    </script>
+
+
+</body>
+
+</html>
