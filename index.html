@@ -34,6 +34,7 @@
     <div id="app">
 
     </div>
+    <div id="bars"></div>
 
     <script>
         // model
@@ -74,16 +75,39 @@
             appObject.innerHTML = /*HTML*/ `
             <h2>Hold Claude i live til forelesningen er ferdig!</h2>
             <img class="student" src="./images/${student}"><br>
-            Ta en slurk vann:<img src="./images/vann.png" id="water" onmousedown="drinkWater()" class="items"><br>
-            Ta en matbit:<img src="./images/mat.png" id="food" onmousedown="eatFood()" class="items"><br>
-            Mediter litt:<img src="./images/pause.png" onmousedown="meditate()" id="pause" class="items"><br>
-            Hunger:${drawBar(hunger, null)}
-            Thirst:${drawBar(thirst, null)}
-            Stress:${drawBar(relief, null)}
-            Progresjon av forelesning: ${drawBar(forelesningProgress, "blue")}
+            Ta en slurk vann:<img src="./images/vann.png" id="water" onclick="drinkWater()" class="items"><br>
+            Ta en matbit:<img src="./images/mat.png" id="food" onclick="eatFood()" class="items"><br>
+            Mediter litt:<img src="./images/pause.png" onclick="meditate()" id="pause" class="items"><br>
+
             `;
 
             //updateBar(hunger);
+        }
+
+        function updateOnlyBars() {
+            decrementNeeds();
+            checkDead();
+            if(forelesningProgress >=100){
+                
+                showView();
+                document.getElementById('bars').innerHTML = "";
+                clearInterval(myTimer)
+                return;
+            }
+
+            if (!isAlive) {
+                showView();
+                document.getElementById('bars').innerHTML = "";
+                clearInterval(myTimer)
+                return;
+
+            }
+            forelesningProgress += 0.1;
+            document.getElementById('bars').innerHTML = `            Hunger:${drawBar(hunger, null)}
+            Thirst:${drawBar(thirst, null)}
+            Stress:${drawBar(relief, null)}
+            Progresjon av forelesning: ${drawBar(forelesningProgress, "blue")}`;
+
         }
 
         function drawBar(percentageFilled, color) {
@@ -111,12 +135,11 @@
         // controller
 
         // main loop
-        setInterval(updateApp, 16);
+        myTimer = setInterval(updateOnlyBars, 16);
         function updateApp() {
             showView();
-            decrementNeeds();
-            checkDead();
-            forelesningProgress += 0.1;
+
+
         }
 
         // onclick functions
