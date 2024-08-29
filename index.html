@@ -9,9 +9,15 @@
 
 <body>
     <style>
-        .needs{
-            width: 30px;
-            height: 30px;
+        .needsContainer {
+            width: 30vw;
+            height: 3vw;
+            border: solid black;
+        }
+
+        .needsContent {
+            width: 30vw;
+            height: 3vw;
         }
 
         .student {
@@ -31,13 +37,14 @@
 
     <script>
         // model
-        let maxValue = 100;
+        let maxNeedsValue = 100;
         // needs
-        let hunger = maxValue;
-        let thirst = maxValue;
-        let relief = maxValue;
+        let hunger = maxNeedsValue;
+        let thirst = maxNeedsValue;
+        let relief = maxNeedsValue;
+        let forelesningProgress = 0;
 
-        let alive = true;
+        let isAlive = true;
         let student = "itstudent.png"
 
         // view
@@ -45,37 +52,60 @@
 
         updateApp();
         function showView() {
-            if (!alive)
+
+            if (forelesningProgress >= 100) {
+                student = "itstudentW.png"
+                appObject.innerHTML = `<div><img class="student" src="./images/${student}"></div>
+                 <p>Du klarte det, superkult!</p>`;
+
+                return;
+            }
+
+            if (isAlive)
+                student = "itstudent.png"
+            else {
                 student = "itstudentL.png"
+                appObject.innerHTML = `<div><img class="student" src="./images/${student}"></div>
+                 <p>Åneeei claude døde, det var trist! Better luck next time!</p>`;
+
+                return;
+            }
+
             appObject.innerHTML = /*HTML*/ `
-            
-            <img src="./images/vann.png" id="water" class="items">
-            <img src="./images/mat.png" id="food" onmousedown="eatFood()">
-            <img src="./images/pause.png" id="pause">
-            <img class="student" src="./images/${student}">
-            
-            Hunger:<div id="hungerBar" class="needs"></div>
-            Thirst:<div id="waterBar" class="needs"></div>
-            Stress:<div id="reliefBar" class="needs"></div>
+            <h2>Hold Claude i live til forelesningen er ferdig!</h2>
+            <img class="student" src="./images/${student}"><br>
+            Ta en slurk vann:<img src="./images/vann.png" id="water" onmousedown="drinkWater()" class="items"><br>
+            Ta en matbit:<img src="./images/mat.png" id="food" onmousedown="eatFood()" class="items"><br>
+            Mediter litt:<img src="./images/pause.png" onmousedown="meditate()" id="pause" class="items"><br>
+            Hunger:${drawBar(hunger, null)}
+            Thirst:${drawBar(thirst, null)}
+            Stress:${drawBar(relief, null)}
+            Progresjon av forelesning: ${drawBar(forelesningProgress, "blue")}
             `;
 
-            updateBar(hunger);
+            //updateBar(hunger);
         }
 
-        function updateBar(currentValue) {
-            const bar = document.getElementById('hungerBar');
-            const percentage = currentValue / 100;
-
-            if (currentValue > 0) {
-                bar.style.width = (percentage * 300) + "px";
-                if (percentage > 0.66) {
-                    bar.style.backgroundColor = "green";
-                } else if (percentage > 0.33) {
-                    bar.style.backgroundColor = "yellow";
-                } else {
-                    bar.style.backgroundColor = "red";
-                }
+        function drawBar(percentageFilled, color) {
+            // set colour
+            let barColor = 'green';
+            if (percentageFilled < 67) {
+                barColor = 'yellow';
             }
+            if (percentageFilled < 33) {
+                barColor = 'red';
+            }
+
+            if (color == 'blue')
+                barColor = 'blue';
+
+            // draw bar
+            let html = /*HTML*/ `
+                <div class="needsContainer">
+                    <div class="needsContent" style="width: ${percentageFilled}%; background-color: ${barColor}"></div>
+                </div>
+            `;
+            return html;
         }
 
         // controller
@@ -85,27 +115,52 @@
         function updateApp() {
             showView();
             decrementNeeds();
+            checkDead();
+            forelesningProgress += 0.1;
         }
 
         // onclick functions
         function eatFood() {
-            hunger += 10;
+            let fillAmount = 10;
+
+            if (hunger > maxNeedsValue - fillAmount) {
+                hunger = maxNeedsValue;
+            } else {
+                hunger += fillAmount;
+            }
         }
 
         function drinkWater() {
-            thirst += 15;
+            if (thirst < maxNeedsValue - 15) {
+                thirst += 15;
+            } else if (hunger < maxNeedsValue) {
+                thirst = maxNeedsValue;
+            }
         }
 
         function meditate() {
-            relief += 4;
+            if (relief < maxNeedsValue - 20) {
+                relief += 20;
+            } else if (relief < maxNeedsValue) {
+                relief = maxNeedsValue;
+            }
         }
 
         // Justerer ned behov-barene
         function decrementNeeds() {
-            hunger -= 0.1;
-            thirst -= 0.1;
-            if (hunger <= 0)
-                alive = false;
+            if (hunger > 0)
+                hunger -= 0.05;
+            if (thirst > 0)
+                thirst -= 0.2;
+            if (relief > 0)
+                relief -= 0.1;
+        }
+
+        // Sjekk om spiller er død
+        function checkDead() {
+            if (hunger <= 0 || thirst <= 0 || relief <= 0)
+                isAlive = false;
+            return isAlive;
         }
 
         // Sjekk om karakt
